@@ -1,12 +1,16 @@
 package com.wheelchair.mypath.configurations;
+
 import com.graphhopper.config.CHProfile;
 import com.graphhopper.config.Profile;
 import com.graphhopper.GraphHopper;
-import com.graphhopper.util.GHUtility;
+import com.graphhopper.reader.dem.SRTMProvider;
+import com.wheelchair.mypath.model.CustomProfiles;
+import com.wheelchair.mypath.utils.GHProfileUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import static com.wheelchair.mypath.constants.Constants.PBF_LOCATION;
+import static com.wheelchair.mypath.constants.Constants.*;
+import static com.wheelchair.mypath.model.CustomProfiles.WHEEL_CHAIR;
 
 /**
  * @author Nadim Mahmud
@@ -18,22 +22,18 @@ public class GraphHopperConfig {
     @Bean
     public GraphHopper graphHopper() {
         GraphHopper hopper = new GraphHopper();
-        hopper.setOSMFile(PBF_LOCATION);
 
-        // specify where to store graphhopper files
-        hopper.setGraphHopperLocation("target/routing-graph-cache");
+        hopper.setOSMFile(PBF_PATH);
+        hopper.setGraphHopperLocation(GH_CACHE_PATH);
 
-        // add all encoded values that are used in the custom model, these are also available as path details or for client-side custom models
-        hopper.setEncodedValuesString("car_access, car_average_speed, road_access");
+        hopper.setEncodedValuesString("foot_access, hike_rating, mtb_rating, foot_priority, foot_average_speed, average_slope, max_slope, surface, footway, smoothness, country, road_class");
+        hopper.setElevationProvider(new SRTMProvider());
 
-        // see docs/core/profiles.md to learn more about profiles
-        hopper.setProfiles(new Profile("car").setCustomModel(GHUtility.loadCustomModelFromJar("car.json")));
+        hopper.setProfiles(new Profile(WHEEL_CHAIR.getLabel()).setCustomModel(GHProfileUtils.loadCustomModel(WHEELCHAIR_CUSTOM_MODEL_PATH)));
+        hopper.getCHPreparationHandler().setCHProfiles(new CHProfile(WHEEL_CHAIR.getLabel()));
 
-        // this enables speed mode for the profile we called car
-        hopper.getCHPreparationHandler().setCHProfiles(new CHProfile("car"));
-
-        // now this can take minutes if it imports or a few seconds for loading of course this is dependent on the area you import
         hopper.importOrLoad();
+
         return hopper;
     }
 }

@@ -21,21 +21,12 @@ public class RoutingController {
     private RoutingService routingService;
 
     @GetMapping(value = "/route")
-    public Response getRoute(
+    public ResponsePath getRoute(
             @RequestParam double fromLat,
             @RequestParam double fromLon,
             @RequestParam double toLat,
             @RequestParam double toLon) {
-        GHResponse response = routingService.calculateRoute(fromLat, fromLon, toLat, toLon);
 
-//        if (response.hasErrors()) {
-//            return "Error: " + response.getErrors().toString();
-//        }
-//
-//        return "Distance: " + response.getBest().getDistance() / 1000 + " km, Time: " +
-//                response.getBest().getTime() / 1000 / 60 + " minutes";
-
-
-        return new Response();
+        return routingService.getBestRoute(fromLat, fromLon, toLat, toLon);
     }
 }
