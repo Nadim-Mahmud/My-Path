@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.wheelchair.mypath.model.CustomProfiles.WHEEL_CHAIR;
+import static com.wheelchair.mypath.model.PathDetails.*;
 
 /**
  * @author Nadim Mahmud
@@ -35,6 +36,8 @@ public class RoutingService {
             throw new RouteNotFound("Route not found!");
         }
 
+        Response response = navigationService.getNavigation(ghResponse.getBest());
+
         return ghResponse.getBest();
 
 //        return navigationService.getNavigation(ghResponse.getBest());
@@ -42,13 +45,14 @@ public class RoutingService {
 
     public GHResponse getGPHRoute(double fromLat, double fromLon, double toLat, double toLon) {
         List<String> details = new ArrayList();
-        details.add("surface");
-        details.add("street_name");
-        details.add("footway");
+        details.add(SURFACE.getLabel());
+        details.add(STREET_NAME.getLabel());
+        details.add(FOOT_WAY.getLabel());
 
         GHRequest request = new GHRequest(fromLat, fromLon, toLat, toLon)
                 .setProfile(WHEEL_CHAIR.getLabel())
                 .setPathDetails(details);
+
         return graphHopper.route(request);
     }
 }

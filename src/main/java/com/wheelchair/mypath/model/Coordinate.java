@@ -9,10 +9,12 @@ import java.io.Serializable;
 public class Coordinate {
     double latitude;
     double longitude;
+    double elevation;
 
-    public Coordinate(double latitude, double longitude) {
+    public Coordinate(double latitude, double longitude, double elevation) {
         this.latitude = latitude;
         this.longitude = longitude;
+        this.elevation = elevation;
     }
 
     public double getLatitude() {
@@ -29,5 +31,13 @@ public class Coordinate {
 
     public void setLongitude(double longitude) {
         this.longitude = longitude;
+    }
+
+    public double getElevation() {
+        return elevation;
+    }
+
+    public void setElevation(double elevation) {
+        this.elevation = elevation;
     }
 }
