@@ -7,7 +7,6 @@ import com.wheelchair.mypath.service.RoutingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -21,12 +20,12 @@ public class RoutingController {
     private RoutingService routingService;
 
     @GetMapping(value = "/route")
-    public ResponsePath getRoute(
-            @RequestParam double fromLat,
-            @RequestParam double fromLon,
-            @RequestParam double toLat,
-            @RequestParam double toLon) {
+    public Response getRoute(
+            @RequestParam double srcLat,
+            @RequestParam double srcLon,
+            @RequestParam double destLat,
+            @RequestParam double destLon) {
 
-        return routingService.getBestRoute(fromLat, fromLon, toLat, toLon);
+        return routingService.getBestRoute(srcLat, srcLon, destLat, destLon);
     }
 }

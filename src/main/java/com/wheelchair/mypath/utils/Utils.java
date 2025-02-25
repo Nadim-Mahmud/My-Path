@@ -9,8 +9,9 @@ import java.util.List;
  */
 public class Utils {
 
+    //get inclusive sub array [start, end]
     public static <T> List<T> getSubArray(List<T> arrayList, int start, int end) {
 
-        return new ArrayList<>(arrayList.subList(start, end));
+        return new ArrayList<>(arrayList.subList(start, end+1));
     }
 }

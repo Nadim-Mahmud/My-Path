@@ -1,6 +1,12 @@
 package com.wheelchair.mypath.utils;
 
 import com.wheelchair.mypath.model.Coordinate;
+import com.wheelchair.mypath.model.TurnDirection;
+
+import static com.wheelchair.mypath.constants.Constants.*;
+import static com.wheelchair.mypath.model.TurnDirection.STRAIGHT;
+import static com.wheelchair.mypath.model.TurnDirection.RIGHT;
+import static com.wheelchair.mypath.model.TurnDirection.LEFT;
 
 /**
  * @author Nadim Mahmud
@@ -52,6 +58,7 @@ public class GeoUtils {
 
         // Convert the result from radians to degrees and normalize it to [0, 360)
         initialBearing = Math.toDegrees(initialBearing);
+
         return (initialBearing + 360) % 360;
     }
 
@@ -59,12 +66,31 @@ public class GeoUtils {
     /*
         headingchange=(bearingBC−bearingAB+360)mod360
      */
-    public static double calculateHeadingChange(Coordinate pointA, Coordinate pointB, Coordinate pointC) {
+    public static double calculateHeading(Coordinate pointA, Coordinate pointB, Coordinate pointC) {
         double bearingAB = calculateBearing(pointA, pointB);
         double bearingBC = calculateBearing(pointB, pointC);
 
         // Calculate the heading change
         double headingChange = (bearingBC - bearingAB + 360) % 360;
+
         return headingChange;
+    }
+
+    public static TurnDirection getTurnDirection(Coordinate start, Coordinate mid, Coordinate end) {
+
+        double headingChange = calculateHeading(start, mid, end);
+
+        if (headingChange > DEGREE_180) {
+            headingChange -= DEGREE_360;
+        } else if (headingChange < -DEGREE_180) {
+            headingChange += DEGREE_360;
+        }
+        if (Math.abs(headingChange) <= STRAIGHT_THRESHOLD) {
+            return STRAIGHT;
+        } else if (headingChange > 0) {
+            return RIGHT;
+        } else {
+            return LEFT;
+        }
     }
 }

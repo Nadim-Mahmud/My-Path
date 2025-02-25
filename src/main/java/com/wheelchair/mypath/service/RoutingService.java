@@ -8,6 +8,7 @@ import com.wheelchair.mypath.exceptions.RouteNotFound;
 import com.wheelchair.mypath.model.CustomProfiles;
 import com.wheelchair.mypath.model.apiresponse.Response;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -29,18 +30,14 @@ public class RoutingService {
     @Autowired
     private NavigationService navigationService;
 
-    public ResponsePath getBestRoute(double fromLat, double fromLon, double toLat, double toLon) {
+    public Response getBestRoute(double fromLat, double fromLon, double toLat, double toLon) {
         GHResponse ghResponse = getGPHRoute(fromLat, fromLon, toLat, toLon);
 
         if (ghResponse.hasErrors()) {
             throw new RouteNotFound("Route not found!");
         }
 
-        Response response = navigationService.getNavigation(ghResponse.getBest());
-
-        return ghResponse.getBest();
-
-//        return navigationService.getNavigation(ghResponse.getBest());
+        return navigationService.getNavigation(ghResponse.getBest());
     }
 
     public GHResponse getGPHRoute(double fromLat, double fromLon, double toLat, double toLon) {
