@@ -7,8 +7,10 @@ package com.wheelchair.mypath.model;
 public enum TurnDirection {
     LEFT("Turn left"),
     SLIGHT_LEFT("Turn slightly left"),
+    STEEP_LEFT("Make a steep left turn"),
     RIGHT("Turn right"),
     SLIGHT_RIGHT("Turn slightly right"),
+    STEEP_RIGHT("Make a steep right turn"),
     STRAIGHT("Go straight"),
     END("Reached");
 

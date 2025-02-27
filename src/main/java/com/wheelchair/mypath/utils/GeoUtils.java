@@ -89,15 +89,23 @@ public class GeoUtils {
         if (absChange <= STRAIGHT_THRESHOLD) {
             return STRAIGHT;
         } else if (headingChange > 0) {
+
             if (absChange <= SLIGHT_THRESHOLD) {
                 return SLIGHT_RIGHT;
+            } else if (absChange <= STEEP_THRESHOLD) {
+                return RIGHT;
+            } else {
+                return STEEP_RIGHT;
             }
-            return TurnDirection.RIGHT;
         } else {
+
             if (absChange <= SLIGHT_THRESHOLD) {
                 return SLIGHT_LEFT;
+            } else if (absChange <= STEEP_THRESHOLD) {
+                return LEFT;
+            } else {
+                return STEEP_LEFT;
             }
-            return LEFT;
         }
     }
 
