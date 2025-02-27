@@ -107,4 +107,8 @@ public class CustomGraphHopperConfig {
         beanFactory.registerSingleton("graphHopper", newHopper);
         logger.info("GraphHopper bean refreshed in the application context");
     }
+
+    public GraphHopper getHopper() {
+        return hopper;
+    }
 }
