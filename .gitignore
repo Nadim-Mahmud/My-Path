@@ -5,7 +5,7 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 /src/main/resources/geofabrik/
-/gh-cache/
+/myPathDataStore/
 
 ### STS ###
 .apt_generated
