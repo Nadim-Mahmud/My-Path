@@ -6,8 +6,11 @@ package com.wheelchair.mypath.model;
  */
 public enum TurnDirection {
     LEFT("Turn left"),
-    RIGHT("Trun right"),
-    STRAIGHT("Go straight");
+    SLIGHT_LEFT("Turn slightly left"),
+    RIGHT("Turn right"),
+    SLIGHT_RIGHT("Turn slightly right"),
+    STRAIGHT("Go straight"),
+    END("Reached");
 
     private final String label;
 

@@ -4,9 +4,7 @@ import com.wheelchair.mypath.model.Coordinate;
 import com.wheelchair.mypath.model.TurnDirection;
 
 import static com.wheelchair.mypath.constants.Constants.*;
-import static com.wheelchair.mypath.model.TurnDirection.STRAIGHT;
-import static com.wheelchair.mypath.model.TurnDirection.RIGHT;
-import static com.wheelchair.mypath.model.TurnDirection.LEFT;
+import static com.wheelchair.mypath.model.TurnDirection.*;
 
 /**
  * @author Nadim Mahmud
@@ -85,12 +83,28 @@ public class GeoUtils {
         } else if (headingChange < -DEGREE_180) {
             headingChange += DEGREE_360;
         }
-        if (Math.abs(headingChange) <= STRAIGHT_THRESHOLD) {
+
+        double absChange = Math.abs(headingChange);
+
+        if (absChange <= STRAIGHT_THRESHOLD) {
             return STRAIGHT;
         } else if (headingChange > 0) {
-            return RIGHT;
+            if (absChange <= SLIGHT_THRESHOLD) {
+                return SLIGHT_RIGHT;
+            }
+            return TurnDirection.RIGHT;
         } else {
+            if (absChange <= SLIGHT_THRESHOLD) {
+                return SLIGHT_LEFT;
+            }
             return LEFT;
         }
+    }
+
+    public static double calculateInclinePercent(Coordinate src, Coordinate dest) {
+        double distance = calcDistance(src, dest) * 1000; // to meter
+        double elevationChange = src.getElevation() - dest.getElevation();
+
+        return (elevationChange / distance) * 100.0;
     }
 }

@@ -16,6 +16,7 @@ import java.util.Map;
 
 import static com.wheelchair.mypath.constants.Constants.*;
 import static com.wheelchair.mypath.model.PathDetails.SURFACE;
+import static com.wheelchair.mypath.model.TurnDirection.END;
 import static com.wheelchair.mypath.model.TurnDirection.STRAIGHT;
 import static com.wheelchair.mypath.utils.GeoUtils.*;
 import static com.wheelchair.mypath.utils.Utils.getSubArray;
@@ -26,6 +27,8 @@ import static com.wheelchair.mypath.utils.Utils.getSubArray;
  */
 @Service
 public class NavigationService {
+
+    public static final int SECOND_INDEX = 1;
 
     public Response getNavigation(ResponsePath responsePath) {
         return generateResponse(responsePath);
@@ -38,11 +41,12 @@ public class NavigationService {
         List<Point> pointList = getPointListGroupedBySurface(coordinateList, pathDetails);
 
         pointList = processManeuverSegments(pointList);
+        pointList = processSegmentsStartEnd(pointList);
+        pointList = generateManeuverInfos(pointList);
 
-        processStartEnd(pointList);
+        pointList = calcIncline(pointList);
         processDistance(pointList);
         processDuration(pointList);
-
 
         Route route = new Route();
         route.setPoints(pointList);
@@ -87,12 +91,9 @@ public class NavigationService {
 
                     TurnDirection turnDirection = getTurnDirection(start, mid, end);
 
-                    // taking a turn
                     if (turnDirection == STRAIGHT ) {
                         newPoint.addCoordinate(end);
                     } else {
-                        newPoint.setManeuver(turnDirection.getLabel());
-
                         newPoint = createNewSegment(point, mid, end);
                         points.add(newPoint);
                     }
@@ -103,18 +104,37 @@ public class NavigationService {
         return points;
     }
 
-    private void processStartEnd(List<Point> points) {
+    private List<Point> processSegmentsStartEnd(List<Point> points) {
         for (Point point : points) {
             List<Coordinate> coordinateList = point.getPoints();
             point.setStart_location(coordinateList.get(0));
             point.setEnd_location(coordinateList.get(coordinateList.size() - 1));
         }
+
+        return points;
     }
 
-    private void processDistance(List<Point> points) {
+    private List<Point> generateManeuverInfos(List<Point> pointList) {
+        for (int i = 0; i < pointList.size() - 1; i++) {
+            Point currentSegment = pointList.get(i);
+            Point nextSegment = pointList.get(i+1);
+
+            Coordinate start = currentSegment.getPoints().get(currentSegment.getPoints().size() - 2);
+            Coordinate mid = currentSegment.getEnd_location();
+            Coordinate end = nextSegment.getPoints().get(SECOND_INDEX);
+
+            currentSegment.setManeuver(getTurnDirection(start, mid, end).getLabel());
+        }
+
+        pointList.get(pointList.size()-1).setManeuver(END.getLabel());
+
+        return pointList;
+    }
+
+    private void processDistance(List<Point> pointList) {
         Double distance = 0.0;
 
-        for (Point point : points) {
+        for (Point point : pointList) {
             distance = 0.0;
             List<Coordinate> coordinateList = point.getPoints();
 
@@ -122,12 +142,12 @@ public class NavigationService {
                 distance += calcDistance(coordinateList.get(i - 1), coordinateList.get(i));
             }
 
-            double distanceInMeter = distance * 1000;
+            double distanceInFeet = distance * 3280.84;
             double distanceInMi = distance * 0.621371;
 
             Distance segmentDistance = new Distance();
-            segmentDistance.setValue(distanceInMeter);
-            segmentDistance.setType("meter");
+            segmentDistance.setValue(distanceInFeet);
+            segmentDistance.setType("feet");
             segmentDistance.setText(String.format("%.2f", distanceInMi) + " mi");
 
             point.setDistance(segmentDistance);
@@ -136,16 +156,24 @@ public class NavigationService {
 
     private void processDuration(List<Point> points) {
         for (Point point : points) {
-            double timeInSecond = (point.getDistance().getValue() * 3600.0) / (1609.34 * AVG_SPEED);
-            double timeInMinue = timeInSecond / 60;
+            double timeInSecond = (point.getDistance().getValue() * 3600.0) / (5280 * AVG_SPEED);
+            double timeInMinute = timeInSecond / 60;
 
             Duration duration = new Duration();
             duration.setValue(timeInSecond);
             duration.setType("second");
-            duration.setText(String.format("%.2f", timeInMinue) + " min");
+            duration.setText(String.format("%.2f", timeInMinute) + " min");
 
             point.setDuration(duration);
         }
+    }
+
+    private List<Point> calcIncline(List<Point> pointList) {
+        for( Point point: pointList) {
+            point.setIncline(calculateInclinePercent(point.getStart_location(), point.getEnd_location()));
+        }
+
+        return pointList;
     }
 
     private Point createNewSegment(Point point, Coordinate coo1, Coordinate coo2) {

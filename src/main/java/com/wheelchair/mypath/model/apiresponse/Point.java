@@ -19,7 +19,7 @@ public class Point {
     private String maneuver;
     private String travel_mode;
     private String instructions;
-    private String incline;
+    private double incline;
 
     public Point(){
         points = new ArrayList<>();
@@ -93,11 +93,11 @@ public class Point {
         return instructions;
     }
 
-    public String getIncline() {
+    public double getIncline() {
         return incline;
     }
 
-    public void setIncline(String incline) {
+    public void setIncline(double incline) {
         this.incline = incline;
     }
 
