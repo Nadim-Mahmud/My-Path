@@ -123,6 +123,7 @@ public class NavigationService {
             Coordinate mid = currentSegment.getEnd_location();
             Coordinate end = nextSegment.getPoints().get(SECOND_INDEX);
 
+            System.out.println();
             currentSegment.setManeuver(getTurnDirection(start, mid, end).getLabel());
         }
 
