@@ -16,6 +16,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -24,6 +25,7 @@ import java.io.IOException;
 import static com.wheelchair.mypath.constants.Constants.*;
 import static com.wheelchair.mypath.model.CustomProfiles.WHEEL_CHAIR;
 import static com.wheelchair.mypath.utils.Utils.deleteDirectory;
+import static com.wheelchair.mypath.utils.Utils.downloadFile;
 import static java.nio.file.Files.exists;
 import static java.nio.file.Path.of;
 import static java.util.Objects.nonNull;
@@ -38,11 +40,14 @@ public class CustomGraphHopperConfig {
     private volatile GraphHopper hopper;
 
     @Autowired
+    private GHProfileUtils ghProfileUtils;
+
+    @Autowired
     private ApplicationContext applicationContext;
 
     @Bean
-    public GraphHopper graphHopper() {
-        hopper = createGraphHopperFromPbf(DEFAULT_PBF_PATH, GH_CACHE_PATH);
+    public GraphHopper graphHopper() throws IOException {
+        hopper = createGraphHopperFromPbf(PBF_PATH, GH_CACHE_PATH);
         hopper.importOrLoad();
         logger.info("Initial GraphHopper instance loaded with cache at {}", GH_CACHE_PATH);
 
@@ -78,9 +83,17 @@ public class CustomGraphHopperConfig {
         logger.info("Moved new cache from {} to {}", GH_TMP_CACHE_PATH, GH_CACHE_PATH);
     }
 
-    private GraphHopper createGraphHopperFromPbf(String pbfPath, String cachePath) {
+    private GraphHopper createGraphHopperFromPbf(String pbfPath, String cachePath) throws IOException {
+
+        if (!exists(of(pbfPath))) {
+            logger.info("Downloading the pbf to {} as it do not exists by default", PBF_PATH);
+            downloadFile(PBF_URL, PBF_PATH);
+
+            return createGraphHopperFromPbf(PBF_PATH, cachePath);
+        }
+
         GraphHopperConfig graphHopperConfig = new GraphHopperConfig();
-        graphHopperConfig.putObject("graph.dataaccess.default_type", "MMAP_STORE");
+        graphHopperConfig.putObject("graph.dataaccess.default_type", "MMAP");
 
         GraphHopper hopper = new GraphHopper();
 
@@ -89,7 +102,7 @@ public class CustomGraphHopperConfig {
         hopper.setEncodedValuesString("foot_access, hike_rating, mtb_rating, foot_priority, foot_average_speed, average_slope, max_slope, surface, footway, smoothness, country, road_class");
         hopper.setElevationProvider(new SRTMProvider());
 
-        Profile wheelChair = new Profile(WHEEL_CHAIR.getLabel()).setCustomModel(GHProfileUtils.loadCustomModel(WHEELCHAIR_CUSTOM_MODEL_PATH));
+        Profile wheelChair = new Profile(WHEEL_CHAIR.getLabel()).setCustomModel(ghProfileUtils.loadCustomModel(WHEELCHAIR_CUSTOM_MODEL_PATH));
         hopper.setProfiles(wheelChair);
         hopper.getCHPreparationHandler().setCHProfiles(new CHProfile(WHEEL_CHAIR.getLabel()));
 

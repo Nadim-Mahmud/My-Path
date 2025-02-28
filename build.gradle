@@ -26,13 +26,13 @@ dependencies {
 	implementation 'org.slf4j:slf4j-api:2.0.16'
 	implementation 'ch.qos.logback:logback-classic:1.5.16'
 
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+//	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+//	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 }
 
-tasks.named('test') {
-	useJUnitPlatform()
-}
+//tasks.named('test') {
+//	useJUnitPlatform()
+//}
 
 //tasks.named('bootRun') {
 //	jvmArgs = ['-Xmx4g'] // Adjust for larger OSM files
